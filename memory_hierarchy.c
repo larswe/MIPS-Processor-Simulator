@@ -20,14 +20,16 @@ void memory_state_init(struct architectural_state* arch_state_ptr) {
         memory_stats_init(arch_state_ptr, 0); // WARNING: we initialize for no cache 0
     }else {
         // CACHE ENABLED
+        //assert(0); /// @students: Remove assert(0); and initialize cache
+
+
         /// @students: memory_stats_init(arch_state_ptr, X); <-- fill # of tag bits for cache 'X' correctly
         // 32 bit address
         // 16 byte blocks -> 4 offset bits
         // number rows = cache_size / 16
         // -> (log2(number_rows)) index bits
         number_rows = cache_size / 16;
-        upper_ceiling_rows = 2*number_rows - 1;
-        index_length = log10(upper_ceiling_rows) / log10(2);
+        index_length = log10(number_rows) / log10(2);
         int tag_length = 32 - 4 - index_length;
         printf("The tag has length %d\n", tag_length);
         memory_stats_init(arch_state_ptr, tag_length);
@@ -51,6 +53,7 @@ int memory_read(int address){
         return (int) arch_state.memory[address / 4];
     }else{
         // CACHE ENABLED
+        //assert(0); /// @students: Remove assert(0); and implement Memory hierarchy w/ cache
         uint8_t byte_offset = get_piece_of_a_word(address, 0 , 4);
         // Neither index nor tag can ever exceed 32 bits, since we have 32 bit addresses
         uint32_t index = get_piece_of_a_word(address, 4 , index_length);
@@ -84,6 +87,23 @@ int memory_read(int address){
                 *(valid_byte_pnt + 1 + num_bytes_for_tag + i ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + i / 4], 8*((3-i) % 4), 8);
             }
 
+            /**(valid_byte_pnt + 1 + num_bytes_for_tag     ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 24, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 1 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 16, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 2 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 8, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 3 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 0, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 4 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 24, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 5 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 16, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 6 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 8, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 7 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 0, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 8 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 24, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 9 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 16, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 10) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 8, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 11) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 0, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 12) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 24, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 13) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 16, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 14) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 8, 8);
+            *(valid_byte_pnt + 1 + num_bytes_for_tag + 15) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 0, 8); */
+
         } else {
             if (valid == 1) {
 
@@ -102,6 +122,23 @@ int memory_read(int address){
                   for (int i = 0; i < 16; i++) {
                       *(valid_byte_pnt + 1 + num_bytes_for_tag + i ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + i / 4], 8*((3-i) % 4), 8);
                   }
+
+                  /**(valid_byte_pnt + 1 + num_bytes_for_tag     ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 24, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 1 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 16, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 2 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 8, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 3 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 0], 0, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 4 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 24, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 5 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 16, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 6 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 8, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 7 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 1], 0, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 8 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 24, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 9 ) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 16, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 10) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 8, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 11) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 2], 0, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 12) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 24, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 13) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 16, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 14) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 8, 8);
+                  *(valid_byte_pnt + 1 + num_bytes_for_tag + 15) = get_piece_of_a_word(arch_state.memory[address / 4 - ((address / 4) % 4) + 3], 0, 8); */
 
                   // Of course, we also store the new tag
                   for (int i = 0; i < num_bytes_for_tag; i++) {

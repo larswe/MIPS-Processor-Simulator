@@ -1,3 +1,9 @@
+/*************************************************************************************|
+|   1. YOU ARE NOT ALLOWED TO SHARE/PUBLISH YOUR CODE (e.g., post on piazza or online)|
+|   2. Fill main.c and memory_hierarchy.c files                                       |
+|   3. Do not use any other .c files neither alter main.h or parser.h                 |
+|   4. Do not include any other library files                                         |
+|*************************************************************************************/
 #include "mipssim.h"
 
 #define BREAK_POINT 200000 // exit after so many cycles -- useful for debugging
@@ -34,6 +40,8 @@ static inline uint8_t get_instruction_type(int opcode)
             return J_TYPE;
         case SLT:
             return R_TYPE;
+
+        ///@students: fill in the rest
 
         default:
             assert(false);
@@ -147,8 +155,8 @@ void FSM()
 void instruction_fetch()
 {
     if (arch_state.control.MemRead) {
-        if (arch_state.control.IRWrite) {
-            int address = (arch_state.control.IorD == 0) ? arch_state.curr_pipe_regs.pc : arch_state.curr_pipe_regs.ALUOut; // IorD = 0: address = PC. else: address = ALUOUT
+        if (arch_state.control.IorD == 0) {
+            int address = arch_state.curr_pipe_regs.pc;
             arch_state.next_pipe_regs.IR = memory_read(address);
         }
     }
@@ -244,13 +252,15 @@ void memory_access() {
     struct pipe_regs *next_pipe_regs = &arch_state.next_pipe_regs;
 
     if (control->MemRead == 1) {
-            next_pipe_regs->MDR = control->IorD == 1 ? memory_read(curr_pipe_regs->ALUOut) : memory_read(curr_pipe_regs->PC); // IorD==1: mdr = memread(ALUOUT). else: mdr = memread(PC)
+        if (control->IorD == 1) {
+//            printf("%d\n", curr_pipe_regs->ALUOut);
+            next_pipe_regs->MDR = memory_read(curr_pipe_regs->ALUOut);
+//            printf("%d\n", next_pipe_regs->MDR);
+        }
     }
     if (control->MemWrite == 1) {
         if (control->IorD == 1) {
             memory_write(curr_pipe_regs->ALUOut , curr_pipe_regs->B);
-        } else {
-            memory_write(curr_pipe_regs->PC , curr_pipe_regs->B);
         }
     }
 
@@ -363,8 +373,12 @@ int main(int argc, const char* argv[])
     /--------------------------------------*/
     parse_arguments(argc, argv);
     arch_state_init(&arch_state);
-    
+    ///@students WARNING: Do NOT change/move/remove main's code above this point!
     while (true) {
+
+        ///@students: Fill/modify the function bodies of the 7 functions below,
+        /// Do NOT modify the main() itself, you only need to
+        /// write code inside the definitions of the functions called below.
 
         FSM();
 
@@ -380,6 +394,7 @@ int main(int argc, const char* argv[])
 
         assign_pipeline_registers_for_the_next_cycle();
 
+       ///@students WARNING: Do NOT change/move/remove code below this point!
         marking_after_clock_cycle();
         arch_state.clock_cycle++;
         // Check exit statements

@@ -1,6 +1,8 @@
 # MIPS-Processor-Simulator
 11/2019 - Simulator for a MIPS Processor 
 
+This project was created as a piece of coursework for the 2019 course "Introduction to Computer Systems" at UoE. 
+
 In your terminal, run
 gcc -o mipssim mipssim.c memoryhierarchy.c -std=gnu99 -lm 
 to create a mipssim executable file. This may vary depending on your platform. 
